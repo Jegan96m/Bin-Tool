@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Fiber SelfCheck Tool</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+</head>
+<body>  
+    <table id="fiberTable" class="fiberTable">
+        <tr>
+            <td> 
+                <label>Insert Fiber(Before)</label><br>
+                <input type="file" id="f-before" accept=".geojson">
+            </td>
+            <td>
+                <label rowspan="2">Insert Fiber(After)</label><br>
+                <input type="file" id="f-after" accept=".geojson">
+            </td>
+
+            <td rowspan="2">
+                <button id="run-QC">Run QC</button>
+            </td>
+
+            <td rowspan="3">
+                <img id="toggleTableBtn-Left" src="img/left.png" alt="Toggle Table" style="cursor: pointer;">
+            </td>
+            <td rowspan="3">
+                <a href="../Donate/donateMe.html" target="_blank">
+                    <img id="donateButton" src="../img/donation.png" alt="Donate">
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>Optional layer</label><br>
+                <input type="file" id="handhole" accept=".geojson">
+            </td>
+
+            <td >
+                <label for="fiber-name">Fiber-Name:</label><br>
+                <select id="fiber-name">
+                    <option value="Name selected">Name</option>
+                    <option value="ID">ID</option>
+                    <option value="Null" >none</option>
+                </select>
+            </td>            
+        </tr>
+
+        <tr>
+            <td>
+                <label for="zipFileInput">Splicing Before:</label><br>
+                <input type="file" id="zipFileInput_before" accept=".zip" onchange="handleZipFile_before()">
+            </td>
+            <td>
+                <label for="zipFileInput">Splicing After:</label><br>
+                <input type="file" id="zipFileInput_after" accept=".zip" onchange="handleZipFile_after()">
+            </td>
+            <td>
+                <p> <a href="Tracing tools/tracing.html"> Tracing tools</a></p>
+            </td>
+        </tr>
+    </table>
+
+    <table id="toggleTableBtn-Right"> 
+        <tr>
+            <td>
+                <img  src="img/right.png" alt="Toggle Table">
+            </td>
+        </tr>
+    </table>
+    
+
+    <div id="map"style="height: 100vh;"></div>
+    <div id="coordinates"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/7.0.0-alpha.0/turf.min.js"></script>
+    <script src="button.js"></script>
+    <script src="app.js"></script>
+    <script src="Splicing.js"></script>
+    
+</body>
+</html>
