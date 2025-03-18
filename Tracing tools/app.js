@@ -12,11 +12,11 @@ var map = L.map('map', {
         }).addTo(map);
 
 var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '<span style="font-size: 16px;">© Develop by AzbinFahmi update by JGN</span>',
+    attribution: '© Develop by AzbinFahmi update by JGN',
     maxZoom: 99
 });
 var lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '<span style="font-size: 16px;">© Develop by AzbinFahmi update by JGN</span>',
+    attribution: '© Develop by AzbinFahmi update by JGN',
     maxZoom: 99
 });
 // Add the light layer by default
