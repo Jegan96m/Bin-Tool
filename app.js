@@ -10,6 +10,7 @@ var selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service G
 var map = L.map('map', {
     maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
     minZoom: 2,
+    attributionControl:false
 }).setView([0, 0], 2);
 
  L.control.attribution({
