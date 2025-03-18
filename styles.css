@@ -9,6 +9,10 @@ body, html {
     height: 100vh;
 }
 
+ .leaflet-control-attribution {
+            font-size: 18px; /* Change this to your desired font size */
+}
+
 .fiberTable {
     position: absolute;
     border-collapse: collapse;
@@ -42,9 +46,6 @@ body, html {
     cursor: pointer; 
 }
 
- .leaflet-control-attribution {
-            font-size: 25px; /* Change this to your desired font size */
-        }
 
 #donateButton {
     /* position: absolute; */
