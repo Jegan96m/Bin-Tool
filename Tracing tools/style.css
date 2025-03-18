@@ -37,10 +37,9 @@
     color: white; 
 }
 
-.leaflet-control-attribution {
-  font-size: large; /* Change this value to your desired font size */
-}
-
+ .leaflet-control-attribution {
+            font-size: 18px; /* Change this to your desired font size */
+        }
 #donateButton {
   /* position: absolute; */
   /* top: 10px; */
