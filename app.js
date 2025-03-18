@@ -12,6 +12,11 @@ var map = L.map('map', {
     minZoom: 2,
 }).setView([0, 0], 2);
 
+ L.control.attribution({
+            position: 'bottomright',
+            prefix: '<a href="https://app.vetro.io/fibermap/" target="_blank">Vetro</a>' // Custom 
+        }).addTo(map);
+
 var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '© Develop by AzbinFahmi',
     maxZoom: 99
