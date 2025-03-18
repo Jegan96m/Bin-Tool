@@ -41,6 +41,11 @@ body, html {
     display: none;
     cursor: pointer; 
 }
+
+ .leaflet-control-attribution {
+            font-size: 18px; /* Change this to your desired font size */
+        }
+
 #donateButton {
     /* position: absolute; */
     /* top: 10px; */
