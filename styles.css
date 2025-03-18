@@ -9,10 +9,9 @@ body, html {
     height: 100vh;
 }
 
- .leaflet-control-attribution {
+.leaflet-control-attribution {
             font-size: 18px !important; /* Change this to your desired font size */
-}
-
+        }
 .fiberTable {
     position: absolute;
     border-collapse: collapse;
