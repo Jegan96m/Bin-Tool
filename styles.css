@@ -9,7 +9,7 @@ body, html {
     height: 100vh;
 }
 
- .leaflet-control-attribution {
+ .leaflet-control-attribution a{
             font-size: 18px; /* Change this to your desired font size */
 }
 
