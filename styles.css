@@ -10,7 +10,7 @@ body, html {
 }
 
  .leaflet-control-attribution a{
-            font-size: 18px; /* Change this to your desired font size */
+            font-size: 18px !important; /* Change this to your desired font size */
 }
 
 .fiberTable {
