@@ -880,10 +880,10 @@ function AddHHintoMap(){
     let end = start;
     let sameValue = arr[0][1];
     if(sameValue == 'DTS'){
-      newValue = '1x4 Secondary Splitters'
+      newValue = '1x4 Secondary Splitters<br>'
     }
     else{
-      newValue = '1x8 Primary Splitters'
+      newValue = '1x8 Primary Splitters<br>'
     }
     let namecableCapac = arr[0][2].split('_#')
     let namecable = `${namecableCapac[0]}`
@@ -1188,164 +1188,227 @@ function AddHHintoMap(){
     const lat = feature[1];
     const lon = feature[2];
 
-    //getInfo that not cut and passthrough for simplified splicing INFO
-    let labelDesc = [], new_desc =[], arrKeys =[], arrDTS =[]
-    //for splicing
-    for(let fibername in HH_Before[name]['SpliceInfo']){
-      let arr = HH_Before[name]['SpliceInfo'][fibername]
-      for(let i =0; i < arr.length; i++){
-        //console.log('arr[i][2]: ',arr[i][2])
-        if(arr[i][2] === 'Cut'){
-          continue
-        }
-        else{
-          let direction = findDirection(name,fibername)
-          let directionIn = direction[0]
-          let countIn = direction[1]
-          let countName = direction[2]
-          let focInwithCapac = extractFOC(fibername).split('_#')
-          let foc_in = focInwithCapac[0]
-          let focInCapac = focInwithCapac[1] + 'F'
-          let focOutwithCapac = extractFOC(arr[i][2]).split('_#')
-          let foc_out = focOutwithCapac[0]
-          let focOutCapac = focOutwithCapac[1] + 'F'
+    // collect FOCs used in equipment
+let equipmentFOCs = new Set();
+for (let fibername in HH_Before[name]['Equipment']) {
+  equipmentFOCs.add(extractFOC(fibername).split('_#')[0]);
+}
 
-          if(arr[i][2] === "Equipment"){
-            continue
-          }
-          else if(arr[i][2] === "Passthrough"){
-            let direction = findDirection(name,fibername)
-            let directionIn = direction[0]
-            let countIn = direction[1]
-            let countName = direction[2]
-            let focInwithCapac = extractFOC(fibername).split('_#')
-            let foc_in = focInwithCapac[0]
-            let focInCapac = focInwithCapac[1] + 'F'
-            let focOutwithCapac = extractFOC(arr[i][1]).split('_#')
-            let foc_out = focOutwithCapac[0]
-            let focOutCapac = focOutwithCapac[1] + 'F'
-            let direction2 = findDirection(name,arr[i][1])
-            let directionOut = direction2[0]
-            let countOut = direction[1]
-            
+// helpers
+function normalizePair(a, b) {
+  return [a, b].sort().join(" | ");
+}
 
-            labelDesc.push(`<b>Passthrough</b> <br> In: ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn} <br> Out: ${focOutCapac} ${foc_out} (${arr[i][0]}) ${directionOut} <br><br>`);
+function chooseBetter(existing, candidate) {
+  // prefer the one whose IN is in equipment
+  if (equipmentFOCs.has(candidate.inFOC)) return candidate;
+  if (equipmentFOCs.has(existing.inFOC)) return existing;
+  return existing; // fallback: keep existing
+}
 
-          }
-          else{
-            let direction = findDirection(name,arr[i][2])
-            let directionOut = direction[0]
-            let countOut = direction[1]
-            // if(countName > 1){
-            //   labelDesc.push(`In ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut} Out ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>`)
-            //   if(countIn > 1 && countOut> 1){
-            //     labelDesc.push(`In ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut} Out ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>`)
-            //   }
-            //   else if(countIn > 1){
-            //     labelDesc.push(`In (${arr[i][1]}) ${directionOut} Out ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>`)
-            //   }
-            //   else if(countOut > 1){
-            //     labelDesc.push(`In ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut} Out (${arr[i][0]}) ${directionIn}<br>`)
-            //   }
-            //   else{
-            //     labelDesc.push(`In (${arr[i][1]}) ${directionOut} Out (${arr[i][0]}) ${directionIn}<br>`)    
-            //   }
-            // }
-            // else{
-            //   labelDesc.push(`In ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut} Out ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>`)
-            //   if(countIn > 1 && countOut> 1){
-            //     labelDesc.push(`In ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut} Out ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>`)
-            //   }
-            //   else if(countIn > 1){
-            //     labelDesc.push(`In (${arr[i][1]}) ${directionOut} Out ${foc_in} (${arr[i][0]}) ${directionIn}<br>`)
-            //   }
-            //   else if(countOut > 1){
-            //     labelDesc.push(`In ${foc_out} (${arr[i][1]}) ${directionOut} Out (${arr[i][0]}) ${directionIn}<br>`)
-            //   }
-            //   else{
-            //     labelDesc.push(`In (${arr[i][1]}) ${directionOut} Out (${arr[i][0]}) ${directionIn}<br>`)    
-            //   }
-            // }
-            labelDesc.push(`<b>Splice</b> <br> In: ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut} <br>Out: ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br><br>`)
-      
-          }
+let pairMap = new Map();
+let labelDesc = [], new_desc = [], arrKeys = [], arrDTS = [];
+
+// splicing
+for (let fibername in HH_Before[name]['SpliceInfo']) {
+  let arr = HH_Before[name]['SpliceInfo'][fibername];
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i][2] === 'Cut' || arr[i][2] === "Equipment") continue;
+
+    let focInwithCapac = extractFOC(fibername).split('_#');
+    let foc_in = focInwithCapac[0];
+    let focInCapac = focInwithCapac[1] + 'F';
+
+    let label = "";
+    let inFOC, outFOC;
+
+    if (arr[i][2] === "Passthrough") {
+      let focOutwithCapac = extractFOC(arr[i][1]).split('_#');
+      let foc_out = focOutwithCapac[0];
+      let focOutCapac = focOutwithCapac[1] + 'F';
+
+      let directionIn = findDirection(name, fibername)[0];
+      let directionOut = findDirection(name, arr[i][1])[0];
+
+      //label = `In: ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>Out: ${focOutCapac} ${foc_out} (${arr[i][0]}) ${directionOut}<br><b>Passthrough</b><p>`;
+
+      inFOC = foc_in;
+      outFOC = foc_out;
+
+    } else {
+      let focOutwithCapac = extractFOC(arr[i][2]).split('_#');
+      let foc_out = focOutwithCapac[0];
+      let focOutCapac = focOutwithCapac[1] + 'F';
+
+      let directionIn = findDirection(name, fibername)[0];
+      let directionOut = findDirection(name, arr[i][2])[0];
+
+      label = `In: ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut}<br>Out: ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br><p>`;
+
+      inFOC = foc_out;
+      outFOC = foc_in;
+    }
+
+    let key = normalizePair(inFOC, outFOC);
+    let candidate = {label, inFOC};
+
+    if (!pairMap.has(key)) {
+      pairMap.set(key, candidate);
+    } else {
+      let existing = pairMap.get(key);
+      pairMap.set(key, chooseBetter(existing, candidate));
+    }
+  }
+}
+
+// flatten chosen splice/passthrough labels
+for (let {label} of pairMap.values()) {
+  labelDesc.push(label);
+}
+
+// === equipment block (versatile merge version) ===
+for (let fibername in HH_Before[name]['Equipment']) {
+  let direction = findDirection(name, fibername);
+  let directionIn = direction[0];
+  let countIn = direction[1];
+  let countName = direction[2];
+
+  let keys = Object.keys(HH_Before[name]['Equipment'][fibername]);
+  let arr_check = [];
+
+  // store rows first before printing
+  let tempRows = [];
+
+  for (let i = 0; i < keys.length; i++) {
+
+    if (HH_Before[name]['Equipment'][fibername][keys[i]][0].length === 4) {
+      arr_check.push([keys[i], 'PS', extractFOC(fibername), directionIn, countIn, countName]);
+      HH_coordinate[hh_index][3] = 'PS';
+    } else {
+      arr_check.push([keys[i], 'DTS', extractFOC(fibername), directionIn, countIn, countName]);
+      arrDTS.push([keys[i], fibername]);
+    }
+
+    for (let j = 0; j < HH_Before[name]['Equipment'][fibername][keys[i]].length; j++) {
+
+      let arr = HH_Before[name]['Equipment'][fibername][keys[i]][j];
+      let inc = i === 0 ? 0 : i * 8;
+
+      if (arr.length == 4) {
+
+        // ----- PORT RANGE -----
+        let p = arr[1].split('-');
+        let portStart = Number(p[0]) + inc;
+        let portEnd = p.length > 1 ? Number(p[1]) + inc : portStart;
+
+        // ----- FIBER RANGE -----
+        let f = arr[2].toString().split('-');
+        let fiberStart = Number(f[0]);
+        let fiberEnd = f.length > 1 ? Number(f[1]) : fiberStart;
+
+        let dir = findDirection(name, arr[3]);
+
+        // no outgoing cable = secondary splitter
+        if (dir == undefined) {
+
+          tempRows.push({
+            type: 'splitter',
+            portStart,
+            portEnd
+          });
+
+        } else {
+
+          let directionOut = dir[0];
+
+          let cablewithCapac = extractFOC(arr[3]).split('_#');
+          let foc_out = `${cablewithCapac[1]}F ${cablewithCapac[0]}`;
+
+          tempRows.push({
+            type: 'cable',
+            portStart,
+            portEnd,
+            fiberStart,
+            fiberEnd,
+            cable: foc_out,
+            direction: directionOut
+          });
         }
       }
     }
+  }
 
+  // ==================================================
+  // MERGE CONSECUTIVE SAME CABLE
+  // ==================================================
+  let merged = [];
 
-  
-    //for equipment
-    for(let fibername in HH_Before[name]['Equipment']){
-      let direction = findDirection(name,fibername)
-      let directionIn = direction[0]
-      let countIn = direction[1]
-      let countName = direction[2]
-      let keys = Object.keys(HH_Before[name]['Equipment'][fibername])
-      let arr_check =[]
+  for (let r = 0; r < tempRows.length; r++) {
 
-      for(let i = 0; i < keys.length; i++){
-        if(HH_Before[name]['Equipment'][fibername][keys[i]][0].length === 4){
-          arr_check.push([keys[i],'PS', extractFOC(fibername), directionIn, countIn, countName])
-          HH_coordinate[hh_index][3] = 'PS'
-        }
-        else{
-          arr_check.push([keys[i],'DTS', extractFOC(fibername), directionIn, countIn, countName])
-          arrDTS.push([keys[i],fibername])
-        }
-        for(let j = 0; j <HH_Before[name]['Equipment'][fibername][keys[i]].length; j++ ){
-          let inc
-          let arr = HH_Before[name]['Equipment'][fibername][keys[i]][j]
-          if (i == 0){
-            inc = 0
-          }
-          else{
-            inc = i * 8
-          }
-          
-          if(arr.length ==4){
-            let parts = arr[1].split('-')
-            let PortRange
-            if(parts.length > 1){
-              let val1 = Number(parts[0]) + inc
-              let val2 = Number(parts[1]) + inc
-              PortRange = `${val1}-${val2}`
-            }
-            else{
-              let val1 = Number(parts[0]) + inc
-              PortRange = `${val1}`
-            }
-            let direction = findDirection(name,arr[3])              
-            if(direction == undefined){
-              new_desc.push(`In: (PS Port ${PortRange}) <br>Out: (1) 1x4 Secondary Splitter`)
-            }
-            else{
-              let directionOut = direction[0]
-              let countOut = direction[1]
-              let cablewithCapac = extractFOC(arr[3]).split('_#')
-              let foc_out = `${cablewithCapac[0]}`
-              // if(countName>1){
-              //   foc_out = `${cablewithCapac[1]}F ${cablewithCapac[0]}`
-              // }
-              foc_out = `${cablewithCapac[1]}F ${cablewithCapac[0]}`
+    let cur = tempRows[r];
 
-              // if(countOut> 1){
-              //   new_desc.push(`In (Port ${PortRange}) Out ${foc_out} (${arr[2]}) ${directionOut}`)
-              // }
-              // else{
-              //   new_desc.push(`In (Port ${PortRange}) Out (${arr[2]}) ${directionOut}`)
-              // }
-              new_desc.push(`In: (PS Port ${PortRange}) <br>Out: ${foc_out} (${arr[2]}) ${directionOut}`)
-            }
-          }       
-        }
-      }
-      arrKeys.push(groupConsecutiveNumbersWithSameValue(arr_check))
+    if (merged.length === 0) {
+      merged.push(cur);
+      continue;
     }
-    //store HH that has DTS
-    if(arrDTS.length > 0){
-      HHtoObserve[name]= {'DTS': arrDTS}
+
+    let last = merged[merged.length - 1];
+
+    if (
+      cur.type === 'cable' &&
+      last.type === 'cable' &&
+      cur.cable === last.cable &&
+      cur.direction === last.direction &&
+      cur.portStart === last.portEnd + 1 &&
+      cur.fiberStart === last.fiberEnd + 1
+    ) {
+      // merge
+      last.portEnd = cur.portEnd;
+      last.fiberEnd = cur.fiberEnd;
+    } else {
+      merged.push(cur);
     }
+  }
+
+  // ==================================================
+  // OUTPUT
+  // ==================================================
+  for (let x = 0; x < merged.length; x++) {
+
+    let row = merged[x];
+
+    let portRange =
+      row.portStart === row.portEnd
+        ? row.portStart
+        : `${row.portStart}-${row.portEnd}`;
+
+    if (row.type === 'splitter') {
+
+      new_desc.push(
+        `In: (PS Port ${portRange}) <br>Out: (1) 1x4 Secondary Splitter`
+      );
+
+    } else {
+
+      let fiberRange =
+        row.fiberStart === row.fiberEnd
+          ? row.fiberStart
+          : `${row.fiberStart}-${row.fiberEnd}`;
+
+      new_desc.push(
+        `In: (PS Port ${portRange}) <br>Out: ${row.cable} (${fiberRange}) ${row.direction}`
+      );
+    }
+  }
+
+  arrKeys.push(groupConsecutiveNumbersWithSameValue(arr_check));
+}
+
+// store HH that has DTS
+if (arrDTS.length > 0) {
+  HHtoObserve[name] = {'DTS': arrDTS};
+}
+
     //SplicingInfo
     for(let fibername in HH_Before[name]['SpliceInfo']){
       let Fname = fibername.split('_to_')
@@ -1408,7 +1471,7 @@ function AddHHintoMap(){
           if(arr[i].length == 1){
             eq_desc +=`<tr>
             <td>${fiberIn}</td>
-            <td>${arr[i][0]}</td>
+            <td>${arr[i]}</td>
             </tr>`
           }
           else{
@@ -1460,10 +1523,10 @@ function AddHHintoMap(){
         <div id="page1">
             <h2><strong>${name} : </strong> Splicing Information (simplified)</h2>
             <img src="../img/clipboard.png" alt="" onclick="copyToClipboard()" style="cursor: pointer; width: 20px; height: 20px; "><br>
-            <strong> ${latestName} </strong><br>
+            
             <div id="contentToCopy">
               ${labelDesc.join('')}
-              ${arrKeys.join('<br>')}<br><br>
+              ${arrKeys.join('<p>')}<br>
               ${new_desc.join('<br>')}<br>
             </div>
         </div>
@@ -1521,6 +1584,8 @@ function AddHHintoMap(){
     };
     // Create a popup with the feature name
     geo_HHlayer.bindPopup(popupContent);
+    
+
 
     // Add a click event to show the popup
     geo_HHlayer.on('click', function() {
@@ -1538,6 +1603,8 @@ function AddHHintoMap(){
     geo_HHlayer.addTo(map)
     HHlayer.push(geo_HHlayer)
   })
+  downloadGeoJSON(HHlayer);
+
   let lat = HH_coordinate[0][1]
   let long = HH_coordinate[0][2]
   let zoomLevel = 15
@@ -1550,6 +1617,69 @@ function AddHHintoMap(){
   }
   console.log('Total Unconnected Drop: ', countDrop)
 }
+// Helper: extract Page 1 and replace <br> with &nbsp;, clean spaces
+function getPage1Formatted(popupHTML) {
+  const doc = document.implementation.createHTMLDocument('');
+  doc.body.innerHTML = popupHTML || '';
+  const page1 = doc.querySelector('#page1');
+  if (!page1) return '';
+  const node = page1.querySelector('#contentToCopy') || page1;
+
+  let html = node.innerHTML || '';
+
+    // Replace <br> (any form) with <p>
+  html = html.replace(/<br\s*\/?>/gi, '<p>');
+
+  // Insert <p>&nbsp;</p> immediately after </b>
+  html = html.replace(/<\/b>/gi, '<p>&nbsp;<p>');
+
+  // Remove spaces before "In:" and "Out:"
+  html = html.replace(/\s+In:/g, 'In:');
+  html = html.replace(/\s+Out:/g, 'Out:');
+
+  // Add <p> after "Primary Splitters" or "Primary Splitter"
+  html = html.replace(/Primary Splitters?/gi, match => match + '<p>&nbsp;<p>');
+
+  // Replace two or more spaces with <p>
+  html = html.replace(/\s{2,}/g, '<p>');
+
+  
+  return html;
+}
+
+// Export: include Page 1 formatted string
+function downloadGeoJSON(layers, filename = 'HH_points.geojson') {
+  const features = layers.map(marker => {
+    const popup = marker.getPopup?.();
+    const popupHTML = popup ? popup.getContent() : '';
+    const page1Formatted = getPage1Formatted(popupHTML);
+
+    return {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [marker.properties.long, marker.properties.lat]
+      },
+      properties: {
+        name: marker.properties.name,
+        page1: page1Formatted
+      }
+    };
+  });
+
+  const geojson = { type: "FeatureCollection", features };
+  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+
+
+
 
 let failTracingHH = [], newlegendItems =[]
 function TraceFiber(){ 
@@ -1625,6 +1755,7 @@ function TraceFiber(){
     }
     HH_Before[HHname]['PS'] = fiber_cableOut
   }
+  
   //now lets the game begin (find end HH for each HH that has DTS)
   for(let HH in HHtoObserve){
     let temp_fail =[]
@@ -2584,3 +2715,6 @@ function showValue(value) {
     HighlightFiberPath_FromPS(path_FibertoPS[cable][fIn],color)
   }
 }
+
+// After your processing is done, call:
+downloadPointsData();
