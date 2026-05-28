@@ -880,10 +880,10 @@ function AddHHintoMap(){
     let end = start;
     let sameValue = arr[0][1];
     if(sameValue == 'DTS'){
-      newValue = '1x4 Secondary Splitters<br>'
+      newValue = '1x4 Secondary Splitters'
     }
     else{
-      newValue = '1x8 Primary Splitters<br>'
+      newValue = '1x8 Primary Splitters'
     }
     let namecableCapac = arr[0][2].split('_#')
     let namecable = `${namecableCapac[0]}`
@@ -901,7 +901,7 @@ function AddHHintoMap(){
       } else {
           if (start === end) {
               let totalValue = end - start + 1
-              result.push(`In: ${arr[0][2]} (${start.toString()}) ${arr[0][3]}<br>Out: (${totalValue}) ${newValue}`)
+              result.push(`In: ${arr[0][2]} (${start.toString()}) ${arr[0][3]}<p>Out: (${totalValue}) ${newValue}<br>`)
               // if(arr[i][4] > 1){
               //   result.push(`In ${arr[0][2]} (${start.toString()}) ${arr[0][3]} Out ${totalValue} ${newValue}`)
               // }
@@ -911,7 +911,7 @@ function AddHHintoMap(){
             } 
             else {
               let totalValue = end - start + 1
-              result.push(`In: ${arr[0][2]} (${start.toString()}-${end.toString()}) ${arr[0][3]}<br>Out: (${totalValue}) ${newValue}`)
+              result.push(`In: ${arr[0][2]} (${start.toString()}-${end.toString()}) ${arr[0][3]}<p>Out: (${totalValue}) ${newValue}<br>`)
               // if(arr[i][4] > 1){
               //   result.push(`In ${arr[0][2]} (${start.toString()}-${end.toString()}) ${arr[0][3]} Out ${totalValue} ${newValue}`)
               // }
@@ -927,7 +927,7 @@ function AddHHintoMap(){
     // Add the last range
     if (start === end) {
         let totalValue = end - start + 1
-        result.push(`In: ${arr[0][2]} (${start.toString()}) ${arr[0][3]} <br>Out: (${totalValue}) ${newValue}`)
+        result.push(`In: ${arr[0][2]} (${start.toString()}) ${arr[0][3]} <p>Out: (${totalValue}) ${newValue}<br>`)
         // if(arr[0][4] > 1){
         //   result.push(`In ${arr[0][2]} (${start.toString()}) ${arr[0][3]} Out ${totalValue} ${newValue}`)
         // }
@@ -937,7 +937,7 @@ function AddHHintoMap(){
 
       } else {
         let totalValue = end - start + 1
-        result.push(`In: ${arr[0][2]} (${start.toString()}-${end.toString()}) ${arr[0][3]} <br>Out: (${totalValue}) ${newValue}`)
+        result.push(`In: ${arr[0][2]} (${start.toString()}-${end.toString()}) ${arr[0][3]} <p>Out: (${totalValue}) ${newValue}<br>`)
         // if(arr[0][4] > 1){
         //   result.push(`In ${arr[0][2]} (${start.toString()}-${end.toString()}) ${arr[0][3]} Out ${totalValue} ${newValue}`)
         // }
@@ -1243,7 +1243,7 @@ for (let fibername in HH_Before[name]['SpliceInfo']) {
       let directionIn = findDirection(name, fibername)[0];
       let directionOut = findDirection(name, arr[i][2])[0];
 
-      label = `In: ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut}<br>Out: ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br><p>`;
+      label = `In: ${focOutCapac} ${foc_out} (${arr[i][1]}) ${directionOut}<p>Out: ${focInCapac} ${foc_in} (${arr[i][0]}) ${directionIn}<br>`;
 
       inFOC = foc_out;
       outFOC = foc_in;
@@ -1385,7 +1385,7 @@ for (let fibername in HH_Before[name]['Equipment']) {
     if (row.type === 'splitter') {
 
       new_desc.push(
-        `In: (PS Port ${portRange}) <br>Out: (1) 1x4 Secondary Splitter`
+        `In: (PS Port ${portRange})<p>Out: (1) 1x4 Secondary Splitter<br>`
       );
 
     } else {
@@ -1396,7 +1396,7 @@ for (let fibername in HH_Before[name]['Equipment']) {
           : `${row.fiberStart}-${row.fiberEnd}`;
 
       new_desc.push(
-        `In: (PS Port ${portRange}) <br>Out: ${row.cable} (${fiberRange}) ${row.direction}`
+        `In: (PS Port ${portRange})<p>Out: ${row.cable} (${fiberRange}) ${row.direction}<br>`
       );
     }
   }
@@ -1526,8 +1526,8 @@ if (arrDTS.length > 0) {
             
             <div id="contentToCopy">
               ${labelDesc.join('')}
-              ${arrKeys.join('<p>')}<br>
-              ${new_desc.join('<br>')}<br>
+              ${arrKeys.join('<p>')}
+              ${new_desc.join('<p>')}
             </div>
         </div>
 
@@ -1627,21 +1627,21 @@ function getPage1Formatted(popupHTML) {
 
   let html = node.innerHTML || '';
 
-    // Replace <br> (any form) with <p>
-  html = html.replace(/<br\s*\/?>/gi, '<p>');
+// Replace Out:<...><br> with <p>&nbsp;</p>
+html = html.replace(
+    /(Out:[\s\S]*?)<br>/gi,
+    '$1<p>&nbsp;</p>'
+);
 
-  // Insert <p>&nbsp;</p> immediately after </b>
-  html = html.replace(/<\/b>/gi, '<p>&nbsp;<p>');
+// Remove extra whitespace (spaces, tabs, newlines)
+html = html.replace(/\s+/g, ' ');
 
-  // Remove spaces before "In:" and "Out:"
-  html = html.replace(/\s+In:/g, 'In:');
-  html = html.replace(/\s+Out:/g, 'Out:');
+// Optional: remove space before/after tags like <br>, <p>, etc.
+html = html.replace(/\s*<\s*/g, '<');
+html = html.replace(/\s*>\s*/g, '>');
 
-  // Add <p> after "Primary Splitters" or "Primary Splitter"
-  html = html.replace(/Primary Splitters?/gi, match => match + '<p>&nbsp;<p>');
-
-  // Replace two or more spaces with <p>
-  html = html.replace(/\s{2,}/g, '<p>');
+// Optional: trim final output
+html = html.trim();
 
   
   return html;
