@@ -128,7 +128,7 @@ function handleSecondInput(event) {
     // Read the contents of the file
     reader.onload = function (e) {
       try {
-        const selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop','Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc' ,'Name','Total Length','vetro_id'];
+        const selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop','Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc' ,'Name','Total Length','vetro_id','Owner','FondID','ReelID'];
         const GeoJSON_Data = JSON.parse(e.target.result);
         FafterGeoJSON_Data = GeoJSON_Data
 
@@ -163,10 +163,10 @@ function runQC(event){
   FiberError=[],featureIndices = []
   var selectedFiberName = document.getElementById('fiber-name').value
   if(selectedFiberName == "ID"){
-    selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop','Slack Loop Footage' ,'Install Method', 'Layer', 'Description', 'Desc' ,'Name'];
+    selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop','Slack Loop Footage' ,'Install Method', 'Layer', 'Description', 'Desc' ,'Name','Owner','FondID','ReelID'];
   }
   else{
-    selectedProperties = ['Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage' ,'Install Method', 'Layer', 'Description', 'Desc', 'Name'];
+    selectedProperties = ['Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage' ,'Install Method', 'Layer', 'Description', 'Desc', 'Name','Owner','FondID','ReelID'];
   }
 
   if(Fbefore.length != Fafter.length){
@@ -466,7 +466,7 @@ function runQC(event){
   });
 
   for (var i =0; i<FiberError.length;i++){
-    selectedPropertiesOrder = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc', 'Name','Total Length'];
+    selectedPropertiesOrder = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc', 'Name','Total Length','Owner','FondID','ReelID'];
     const selectedFeatureLayer = FiberError[i]
     const nonEqualValues = groupedInfoArray_copy[i].nonEqualValues
     const featureProperties = selectedFeatureLayer.feature.properties;
@@ -546,7 +546,7 @@ function runQC(event){
       WrongFiber.push(FafterGeoJSON_Data.features[missingAfterIndices[i]])
     }
     // Display the wrong fiber in maps
-    var selectedProperties = ['Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc', 'Name', 'Total Length'];
+    var selectedProperties = ['Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc', 'Name', 'Total Length','Owner','FondID','ReelID'];
     L.geoJSON(WrongFiber, {
       style: function (feature) {
           return {
