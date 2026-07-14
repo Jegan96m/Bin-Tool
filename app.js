@@ -4,7 +4,7 @@ var featureIndices = [];
 var selectedFeature = null,isInFiberError=null; // Variable to keep track of the selected feature
 
 // Select only specific properties
-var selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc','Name','Total Length'];
+var selectedProperties = ['ID','Fiber Capacity', 'Placement', 'Zone', 'Service Group', 'Service Set', 'Service Area', 'Material Length', 'Slack Loop', 'Slack Loop Footage', 'Install Method', 'Layer', 'Description', 'Desc','Name','Total Length','Owner','FondID','ReelID'];
 
 // Initialize the map
 var map = L.map('map', {
