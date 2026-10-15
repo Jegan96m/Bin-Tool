@@ -594,7 +594,7 @@ function StoreSplicingInfo(){
                         fiberInput = fInVal
                         checkEQVal = eqVal
                       }
-                      if(checkEQVal == eqVal && eqVal.includes("◀")){
+                      if(checkEQVal == eqVal){
                         Eqconnect.push(inputName,fiberInput,eqVal,portVal,fVal,fOutVal)
                       }
                     }
